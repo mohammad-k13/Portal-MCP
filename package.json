@@ -1,0 +1,14 @@
+{
+  "name": "portal-mcp",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.0.0-beta.4"
+  }
+}
