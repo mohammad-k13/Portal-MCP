@@ -5,10 +5,21 @@
   "devDependencies": {
     "@types/bun": "latest"
   },
+  "scripts": {
+    "dev": "bun run --watch index.ts",
+    "inspect": "bunx @modelcontextprotocol/inspector"
+  },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "@modelcontextprotocol/server": "^2.0.0-beta.4"
+    "@modelcontextprotocol/express": "^2.0.0-beta.4",
+    "@modelcontextprotocol/inspector": "^0.22.0",
+    "@modelcontextprotocol/node": "^2.0.0-beta.4",
+    "@modelcontextprotocol/server": "^2.0.0-beta.4",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
   }
 }
