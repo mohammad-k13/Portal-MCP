@@ -1,0 +1,10 @@
+{
+    "mcpServers": {
+        "portal-mcp": {
+            "url": "http://localhost:8080/mcp",
+            "headers": {
+                "Authorization": "Bearer ${env:PORTAL_MCP_TOKEN}"
+            }
+        }
+    }
+}
