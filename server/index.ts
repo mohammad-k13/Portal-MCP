@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/server";
 import registerTools from "../tools";
+import { registerResources } from "../resources";
 
 export default async function createServer() {
     const server = new McpServer({
@@ -10,11 +11,15 @@ export default async function createServer() {
       capabilities: {
             tools: {
                   listChanged: true,
-            }
+            },
+            resources: {
+                  listChanged: true,
+            },
       }
     });
 
     registerTools(server);
+    registerResources(server);
 
     return server;
 }
