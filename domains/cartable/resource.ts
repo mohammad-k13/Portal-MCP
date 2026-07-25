@@ -7,11 +7,15 @@ Cartable is the user's inbox of pending work items, grouped by entity type
 
 ## Recommended agent workflow
 
-1. Call tool \`get-cartable-titles\` — returns entity types with counts.
-2. Pick an \`entityTypeId\` (usually where count > 0).
-3. Call tool \`get-cartable-list\` with that id.
-   - \`isExit: false\` (default) — items still open in the cartable
-   - \`isExit: true\` — completed / exited items
+1. Call tool \`get-cartable-titles\` — returns entity types with \`entityTypeId\` + counts
+   (this is how you tell project reports vs finance vs documents, etc.).
+2. Either:
+   - Call \`get-cartable-list\` with one \`entityTypeId\`, or
+   - Call \`get-all-cartable-lists\` to fetch every category's items in one go.
+3. \`isExit\` on list tools:
+   - \`false\` (default) — open items still in the cartable
+   - \`true\` — completed / exited items
+   - \`"all"\` — both open and done
 4. Use \`portalUrl\` on each item when present to open the related Portal page.
    If \`portalUrl\` is null, only the legacy backend URL is available.
 
