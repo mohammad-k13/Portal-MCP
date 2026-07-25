@@ -29,7 +29,7 @@ function addErrorInterceptor(client: AxiosInstance): AxiosInstance {
 
 export function createInternalApiClient(sessionToken: string): AxiosInstance {
     const client = axios.create({
-        baseURL: process.env.PORTAL_API_URL ?? "http://localhost:3000",
+        baseURL: process.env.PORTAL_API_URL,
     });
 
     client.interceptors.request.use(config => {
