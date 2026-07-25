@@ -2,6 +2,7 @@ import { createInternalApiClient, ApiRequestError } from "../../../utils/axios";
 import {
     apiCartableListItemSchema,
     apiCartableTitleSchema,
+    type CartableIsExitFilter,
     type CartableListItem,
     type CartableTitle,
 } from "../schema";
@@ -41,6 +42,14 @@ function mapListItem(item: z.infer<typeof apiCartableListItemSchema>): CartableL
     };
 }
 
+function mergeItemsById(items: CartableListItem[]): CartableListItem[] {
+    const byId = new Map<number, CartableListItem>();
+    for (const item of items) {
+        byId.set(item.id, item);
+    }
+    return Array.from(byId.values());
+}
+
 /**
  * Fetches cartable title/count summary via Portal BFF.
  * Mirrors `GET /dashboard/cartable/api/cartable-title-new`.
@@ -63,13 +72,21 @@ export async function fetchCartableTitles(sessionToken: string): Promise<Cartabl
 }
 
 /**
- * Fetches cartable items for an entity type via Portal BFF.
+ * Fetches cartable items for one entity type via Portal BFF.
  * Mirrors `POST /dashboard/cartable/api/cartable-list`.
  */
 export async function fetchCartableList(
     sessionToken: string,
-    opts: { entityTypeId: number; isExit: boolean },
+    opts: { entityTypeId: number; isExit: CartableIsExitFilter },
 ): Promise<CartableListItem[]> {
+    if (opts.isExit === "all") {
+        const [openItems, doneItems] = await Promise.all([
+            fetchCartableList(sessionToken, { entityTypeId: opts.entityTypeId, isExit: false }),
+            fetchCartableList(sessionToken, { entityTypeId: opts.entityTypeId, isExit: true }),
+        ]);
+        return mergeItemsById([...openItems, ...doneItems]);
+    }
+
     const api = createInternalApiClient(sessionToken);
     const { data } = await api.post<{ Data?: unknown }>("/dashboard/cartable/api/cartable-list", {
         EntityTypeId: opts.entityTypeId,
@@ -87,4 +104,45 @@ export async function fetchCartableList(
     }
 
     return parsed.data.map(mapListItem);
+}
+
+export type CartableListGroup = {
+    entityTypeId: number;
+    title: string;
+    count: number;
+    items: CartableListItem[];
+};
+
+/**
+ * Resolves entity types from titles, then fetches list items for each.
+ * Use when the user wants the full cartable across categories in one call.
+ */
+export async function fetchAllCartableLists(
+    sessionToken: string,
+    opts: { isExit?: CartableIsExitFilter; onlyWithCount?: boolean } = {},
+): Promise<CartableListGroup[]> {
+    const isExit = opts.isExit ?? false;
+    const onlyWithCount = opts.onlyWithCount ?? true;
+
+    const titles = await fetchCartableTitles(sessionToken);
+    const selected = onlyWithCount && isExit === false
+        ? titles.filter(t => t.count > 0)
+        : titles;
+
+    const groups = await Promise.all(
+        selected.map(async title => {
+            const items = await fetchCartableList(sessionToken, {
+                entityTypeId: title.entityTypeId,
+                isExit,
+            });
+            return {
+                entityTypeId: title.entityTypeId,
+                title: title.title,
+                count: title.count,
+                items,
+            };
+        }),
+    );
+
+    return groups;
 }
