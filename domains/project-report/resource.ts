@@ -31,7 +31,7 @@ activity details, and read-only comments.
 
 ## Related but separate
 
-- Cartable **کنترل پروژه** / project comments → manage-project, not these tools
+- Manage project / signatory comments → \`project://docs/manage\`
 - Cartable **اظهار نظر گزارش پروژه** (entityType 8) → not wired here
 `;
 
